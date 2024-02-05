@@ -1,4 +1,4 @@
-# pycon-post-calendar-tool
+# pycontw-post-calendar-tool
 
 ## Description
 詳情可見 [PR 貼文自動化工具開發筆記](https://hackmd.io/-uezCABdT6GWCQMsdp9Dig)
