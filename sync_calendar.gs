@@ -12,7 +12,7 @@ function onEdit(e) {
     return;
   }
 
-  if ((e.range.getA1Notation()[0].charCodeAt(0) >= 65 && e.range.getA1Notation()[0].charCodeAt(0) <= 68)|| (e.range.getA1Notation()[0]=='M')) {
+  if ((e.range.getA1Notation()[0].charCodeAt(0) >= 65 && e.range.getA1Notation()[0].charCodeAt(0) <= 68) || (e.range.getA1Notation()[0]=='M')) {
     if (e.range.getA1Notation()[0]=='C')
       oldvalue = e.oldValue;
 
@@ -71,9 +71,10 @@ function modifyEvenContent(value, row, col) {
   console.log(logFun + " content: " + cell.getValue());
   let cur_data = cell.getValue();
 
-  if (cur_data.length > 0) {
+  if (cur_data.length > 0)
     cur_data = cur_data + "\n" + value;
-  }
+  else 
+    cur_data = value;
 
   return cur_data;
 
