@@ -52,10 +52,7 @@ function writePostEvent(month, date, value, status) {
   console.log(logFun + "row: " + real_row + " col: " + real_col);
   console.log(logFun + "color: " + color);
 
-  let cur_data = keepCurrentEvent(real_row, real_col);
-  if (cur_data.length > 0) {
-    value = cur_data + "\n" + value;
-  }
+  value = modifyEvenContent(value, real_row, real_col);
 
   var cell = sheet.getRange(real_row, real_col);
   cell.setValue(value);
@@ -66,13 +63,18 @@ function writePostEvent(month, date, value, status) {
   return (real_row, real_col);
 }
 
-function keepCurrentEvent(row, col) {
-  const logFun = "[keepCurrentEvent]: ";
+function modifyEvenContent(value, row, col) {
+  const logFun = "[modifyEvenContent]: ";
   let sheet = SpreadsheetApp.getActive().getSheetByName('貼文日曆');
   let cell = sheet.getRange(row, col);
 
   console.log(logFun + " content: " + cell.getValue());
   let cur_data = cell.getValue();
+
+  if (cur_data.length > 0) {
+    cur_data = cur_data + "\n" + value;
+  }
+
   return cur_data;
 
   // let arr = cell.getValue().toString().split("\n");
