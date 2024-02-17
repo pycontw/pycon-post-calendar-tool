@@ -2,7 +2,11 @@ function onEdit(e) {
     Logger.log("onedit");
     let range = e.range; 
     // 使用 getSheet 方法，取得了被編輯的單元格所在的工作表（Sheet），並將它存放在變數 sheet 中。
-    let sheet = range.getSheet(); 
+    let sheet = range.getSheet();
+
+    if (sheet.getSheetName() != "貼文表單")
+      return;
+
     let row = range.getRow(); 
     let title = sheet.getRange(row, 4).getValue();
     let lastColumn = 20; 
@@ -83,6 +87,8 @@ function matchColor(status)
 {
   if (status == "已審閱")
     color = "#a4c2f4";
+  else if (status == "待審閱")
+    color = "#ffcfc8";
   else if (status == "已排程")
     color = "#b7d7a8";
   else if (status == "已發布")
