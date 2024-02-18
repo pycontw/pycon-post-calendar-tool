@@ -13,8 +13,6 @@ function createDocFromTemplate(docTitle, inputDict, templateId){
   file = templateFile.makeCopy();
   file.setName(docTitle)
   doc_id = file.getId();
-  // target_folder_ID = '1eUsfBsm-AHhi5zKxsg-1qgSyhIRWp9rv';
-  // moveFile(doc_id, target_folder_ID);
 
   var body = DocumentApp.openById(doc_id).getBody();
   for (const [key, value] of Object.entries(inputDict)) {
