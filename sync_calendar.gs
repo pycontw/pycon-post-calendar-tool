@@ -251,6 +251,8 @@ function matchDate(postDate) {
 function matchColor(status) {
   if (status == "已審閱")
     color = "#a4c2f4";
+  else if (status == "待審閱")
+    color = "#ffcfc8";
   else if (status == "已排程")
     color = "#b7d7a8";
   else if (status == "已發布")
