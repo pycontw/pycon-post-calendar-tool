@@ -57,7 +57,7 @@ function getRowData(sheet, row){
   let postDate = sheet.getRange(row, 3).getValue();
   let title = sheet.getRange(row, 4).getValue();
   let index = sheet.getRange(row, 5).getValue();
-  let status = sheet.getRange(row, 14).getValue();
+  let status = sheet.getRange(row, 15).getValue();
 
   if(
     typeof title === 'undefined' || title.length === 0 ||
