@@ -18,6 +18,11 @@ function createDocFromTemplate(docTitle, inputDict, templateId){
   for (const [key, value] of Object.entries(inputDict)) {
     body.replaceText("{{" + key + "}}", value);
   }
+
+  // (special hanle) link to folder
+  var folder_link_ele = body.findText(inputDict['folder_link']).getElement();
+  folder_link_ele.asText().setLinkUrl(inputDict['folder_link']);
+
   return doc_id
 }
 
