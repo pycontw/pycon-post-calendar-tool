@@ -11,7 +11,7 @@ function onEdit(e) {
   }
 
   _updateScheduledPosts(range, sheet, row);
-  _insertDashboardLink(sheet, row, "報表(仮)");
+  // _insertDashboardLink(sheet, row, "報表(仮)");
 }
 
 function checkCellPlace(c) {
