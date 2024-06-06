@@ -5,47 +5,17 @@ function onEdit(e) {
   let sheet = range.getSheet(); // 使用 getSheet 方法，取得了被編輯的單元格所在的工作表（Sheet），並將它存放在變數 sheet 中。
   let row = range.getRow();     // 使用 getRow 方法，取得了被編輯的單元格的「行數」（水平），並將它存放在變數 row 中。
 
-  let editRange = range.getA1Notation().split(":");
-  
-  // 根據 編輯範圍 採取對應處理方式
-  if(editRange.length > 1) {
-    console.log("Start: "+ editRange[0] + ",End: "+ editRange[1]);
-
-    // 編輯 多欄位，且欄位範圍符合條件則採取 刷新日曆
-    if(checkCellPlace(editRange[0].charCodeAt(0)) && checkCellPlace(editRange[1].charCodeAt(0))) {
-      reflashCalendar(sheet);
-    }
-  } else {
-    console.log("Place: "+ editRange[0].charCodeAt(0));
-
-    // 編輯 單一欄位，且欄位範圍符合條件則採取 刷新日曆
-    if(checkCellPlace(editRange[0].charCodeAt(0))) {
-      let data = getRowData(sheet, row);
-
-      if(data == null) {
-        console.log("Element is empty.");
-        return;
-      }
-
-      if(data.index === 'undefined' || data.index.length === 0) {
-        // 新增 貼文請求
-        let tarIndex = addPostEvent(data.team, data.client, data.row, data.col, data.title, data.status);
-        sheet.getRange(row, 5).setValue(tarIndex);
-      } else {
-        // 修改 貼文請求
-        if(editRange[0].charCodeAt(0) == 67) {
-          reflashCalendar(sheet);
-        } else {
-          let tarIndex = editPostEvent(data.index, data.team, data.client, data.row, data.col, data.title, data.status);
-          sheet.getRange(row, 5).setValue(tarIndex);
-        }
-      }
-    }
+  console.log("Sheet: " + sheet.getName());
+  if(sheet.getName() != "貼文表單") {
+    return;
   }
+
+  _updateScheduledPosts(range, sheet, row);
+  // _insertDashboardLink(sheet, row, "報表(仮)");
 }
 
 function checkCellPlace(c) {
-  if((c >= 65 && c <= 68) || (c == 78))
+  if((c >= 65 && c <= 68) || (c == 79))
     return true;
   else
     return false;
@@ -83,8 +53,10 @@ function getRowData(sheet, row){
   }
 }
 
-function reflashCalendar(sheet) {
+function reflashCalendar() {
+  let startTime = new Date();
   var reqDatas = [];
+  let sheet = SpreadsheetApp.getActive().getSheetByName('貼文表單');
   let lastRow = sheet.getLastRow();
 
   // 取出 貼文表單 所有資料，並完成格式前處理
@@ -103,8 +75,17 @@ function reflashCalendar(sheet) {
 
   // 新增 貼文事件 並更新 當日順序 欄位
   for(var i=0; i<reqDatas.length; i++) {
+    if(reqDatas[i].row <= 26) {
+      continue;
+    }
+    
     let tarIndex = addPostEvent(reqDatas[i].team, reqDatas[i].client, reqDatas[i].row, reqDatas[i].col, reqDatas[i].title, reqDatas[i].color);
     sheet.getRange(i+3, 5).setValue(tarIndex);
+
+    if(isTimeOut(startTime)) {
+      console.log("Time Out");
+      return;
+    }
   }
 
   // 清理 當日順序 欄位
@@ -117,7 +98,7 @@ function cleanCalender() {
   var sheet = SpreadsheetApp.getActive().getSheetByName('貼文日曆');
   let lastRow = sheet.getLastRow();
 
-  var range = sheet.getRange('D4:J'+lastRow);
+  var range = sheet.getRange('D27:J'+lastRow);
   range.clear();
 }
 
@@ -150,6 +131,7 @@ function editPostEvent(index, team, person, row, col, title, color) {
   cell.setValue(text);
   
   // 設定 貼文日曆 顏色
+  console.log(color);
   if (color!="")
     cell.setBackground(color);
 
@@ -265,4 +247,86 @@ function matchColor(status) {
 function getCountEventOfDay(cur_data) {
   let count = cur_data.split('').filter(char => char === '@').length;
   return count;
+}
+
+function isTimeOut(today) {
+  var now = new Date();
+  return now.getTime() - today.getTime() > 28000;
+}
+
+const _insertDashboardLink = (sheet, editedRow, editedValue) => {
+  // Specify the column number where you want to add the link
+  const linkColumn = 18; // For example, column G
+
+  // Get the cell to which you want to add the link
+  const linkCell = sheet.getRange(editedRow, linkColumn);
+
+  // Construct the link URL based on the edited value
+  // it will be replaced with the actual logic to construct the link URL
+  const linkUrl = `https://metabase.pycon.tw/question/49-pycon-taiwan`
+
+  // Create a rich text value with the link
+  const richTextValue = SpreadsheetApp.newRichTextValue()
+    .setText(editedValue)
+    .setLinkUrl(linkUrl)
+    .build();
+
+  // Set the rich text value to the link cell
+  linkCell.setRichTextValue(richTextValue);
+}
+
+const _updateScheduledPosts = (range, sheet, row) => {
+  let startTime = new Date();
+  let editRange = range.getA1Notation().split(":");
+
+  var editState = sheet.getRange(1, 23).getValue();
+  while(editState == "更新中") {
+    editState = sheet.getRange(1, 23).getValue();
+
+    if(isTimeOut(startTime)) {
+      console.log("Time Out");
+      sheet.getRange(1, 23).setValue("--");
+      return;
+    }
+  }
+
+  // 根據 編輯範圍 採取對應處理方式
+  if(editRange.length > 1) {
+    console.log("Start: "+ editRange[0] + ",End: "+ editRange[1]);
+
+    // 編輯 多欄位，且欄位範圍符合條件則採取 刷新日曆
+    sheet.getRange(1, 23).setValue("更新中");
+    reflashCalendar();
+    sheet.getRange(1, 23).setValue("--");
+  } else {
+    console.log("Place: "+ editRange[0].charCodeAt(0));
+
+    // 編輯 單一欄位，且欄位範圍符合條件則採取 刷新日曆
+    if(checkCellPlace(editRange[0].charCodeAt(0))) {
+      sheet.getRange(1, 23).setValue("更新中");
+      let data = getRowData(sheet, row);
+
+      if(data == null) {
+        console.log("Element is empty.");
+        sheet.getRange(1, 23).setValue("--");
+        return;
+      }
+
+      console.log(data.index);
+      if(data.index === 'undefined' || data.index.length === 0) {
+        // 新增 貼文請求
+        let tarIndex = addPostEvent(data.team, data.client, data.row, data.col, data.title, data.color);
+        sheet.getRange(row, 5).setValue(tarIndex);
+      } else {
+        // 修改 貼文請求
+        if(editRange[0].charCodeAt(0) == 67) {
+          reflashCalendar();
+        } else {
+          let tarIndex = editPostEvent(data.index, data.team, data.client, data.row, data.col, data.title, data.color);
+          sheet.getRange(row, 5).setValue(tarIndex);
+        }
+      }
+      sheet.getRange(1, 23).setValue("--");
+    }
+  }
 }
